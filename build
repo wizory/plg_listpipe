@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# TODO get version from one of the files
+
+name='plg_wizory_listpipe'
+version='2.0.0'
+
+rm $name-*.zip
+
+zip -r $name-$version.zip * license.txt -x */*.git/* -x build
