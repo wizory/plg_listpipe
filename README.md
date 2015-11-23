@@ -55,3 +55,15 @@ If you don't see the success message, get a non-200 return code, etc. look for a
 The origin IP addresses tend to be static so you can generally whitelist those.
 
 If you can't figure out what's not working feel free to create an issue with as much detail as possible.
+
+## Running Tests
+
+```bash
+composer install
+vendor/bin/phpunit tests
+
+```
+
+You should see passing tests. :wink:
+
+Note that the oddity in the composer.json pinning `phpunit/php-code-coverage` is due to https://github.com/sebastianbergmann/php-code-coverage/issues/390
