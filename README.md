@@ -4,7 +4,7 @@ This is Wizory's Joomla port of the [ListPipe plugin for WordPress](https://word
 
  > Pulls Powerful Custom Content from your ListPipe account and inserts it into your posts.
 
-See [listpipe.com](https://listpipe.com/) and [AutoNetTV driveMarketing](http://www.autonettv.com/products/drive-marketing/)for details.
+See [listpipe.com](https://listpipe.com/) and [AutoNetTV driveMarketing](http://www.autonettv.com/products/drive-marketing/) for details.
 
 ## Requirements
 - Joomla 1.6 or later
