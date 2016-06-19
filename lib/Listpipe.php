@@ -129,7 +129,7 @@ class Listpipe {
 
         $content = $this->get($url);
 
-        $this->cms-Log("received reply from remote: $content");
+        $this->cms->log("received reply from remote: $content");
     }
 
     public function isDraft() {
