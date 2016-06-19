@@ -6,9 +6,6 @@ use \Exception;
 
 class Listpipe {
 
-    const FAIL = 'fail';
-    const OK = 'success';
-
     const LISTPIPE_API = 'http://www.listpipe.com/blogs/getContent.php?';
     const DELIMITER = '{-~-}';
 
@@ -29,7 +26,7 @@ class Listpipe {
             case 'PushPost': return $this->pushPost($request); break;
             case 'GetContent': return $this->getContent($request); break;
             case 'ConfirmContent': return $this->confirmContent($request); break;
-            default: return Listpipe::FAIL;
+            default: $this->cms->fail();
         }
     }
 
@@ -41,11 +38,11 @@ class Listpipe {
             $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
             $debug = empty($request['debug']) ? false : $request['debug'];
         } catch (Exception $e) {
-            return Listpipe::FAIL;
+            $this->cms->fail();
         }
 
         // require all non-optional args to be set to non-empty values
-        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return Listpipe::FAIL; }
+        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { $this->cms->fail(); }
 
         if ($approve_type == 'draft') {
             $this->is_draft = True;
@@ -58,7 +55,7 @@ class Listpipe {
         );
 
         if (! $this->contentIsValid($content)) {
-            return Listpipe::FAIL; // TODO print error message or something
+            $this->cms->fail(); // TODO print error message or something
         }
 
         $post = processContent($content);
@@ -71,7 +68,7 @@ class Listpipe {
             . '&PostID=' . urlencode($post['id'])
         );
 
-        return Listpipe::OK;
+        $this->cms->succeed();
     }
 
     public function publishDraft($request) {
@@ -79,17 +76,17 @@ class Listpipe {
             $post_id = $request['pid'];
             $approval_key = $request['key'];
         } catch (Exception $e) {
-            return Listpipe::FAIL;
+            $this->cms->fail();
         }
 
         // TODO validate approval key (currently *any* approval key will allow publishing)
 
         // require all non-optional args to be set to non-empty values
-        if (empty($post_id) || empty($approval_key)) { return Listpipe::FAIL; }
+        if (empty($post_id) || empty($approval_key)) { $this->cms->fail(); }
 
-        if ($this->cms->publishPost($post_id)) { return Listpipe::OK; }
+        if ($this->cms->publishPost($post_id)) { $this->cms->succeed(); }
 
-        return Listpipe::FAIL;
+        $this->cms->fail();
 
         // TODO finish implementing this function
 //        try {
@@ -99,11 +96,11 @@ class Listpipe {
 //            $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
 //            $debug = empty($request['debug']) ? false : $request['debug'];
 //        } catch (Exception $e) {
-//            return Listpipe::FAIL;
+//            $this->cms->fail();
 //        }
 //
 //        // require all non-optional args to be set to non-empty values
-//        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return Listpipe::FAIL; }
+//        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { $this->cms->fail(); }
 //
 //        if ($approve_type == 'draft') {
 //            $this->is_draft = True;

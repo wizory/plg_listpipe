@@ -128,11 +128,19 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function fail($message = '') {
-        // TODO: Implement fail() method.
+        $mainframe =& JFactory::getApplication();
+
+        $this->log(ERROR,"abnormal termination with message '" . $message . "'");
+
+        echo "[ERROR] " . $message;
+
+        $mainframe->close();
     }
 
     public function succeed($message = '') {
-        // TODO: Implement succeed() method.
+        $this->log("normal termination with message '" . $message . "'");
+
+        exit($message);
     }
 
     // non-interface functions (local joomla-specific helpers...note snake_case)
