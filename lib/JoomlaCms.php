@@ -26,7 +26,7 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function publishCategory($id) {
-        if (!defined('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
 
         $db = &\JFactory::getDBO();
 
@@ -58,7 +58,7 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function insertPost($data) {
-        if (!defined('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
 
         $db = &\JFactory::getDBO();
 
@@ -116,9 +116,8 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function log($message, $severity = JoomlaCms::INFO) {
-        jimport('joomla.log.log');
-
-        if (defined('\JLog')) {
+        if (function_exists('jimport')) {
+            jimport('joomla.log.log');
 
             // translate generic CMS log levels to Joomla log levels
             switch($severity) {
@@ -139,9 +138,11 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function fail($message = '') {
+        if (!class_exists('\JFactory')) { $this->log('not running under Joomla', JoomlaCms::ERROR); return 'fail'; }
+
         $mainframe = &\JFactory::getApplication();
 
-        $this->log(ERROR,"abnormal termination with message '" . $message . "'");
+        $this->log("abnormal termination with message '" . $message . "'", JoomlaCms::ERROR);
 
         echo "[ERROR] " . $message;
 
@@ -149,6 +150,8 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function succeed($message = '') {
+        if (!class_exists('\JFactory')) { $this->log('not running under Joomla', JoomlaCms::WARN); return 'success'; }
+
         $this->log("normal termination with message '" . $message . "'");
 
         exit($message);

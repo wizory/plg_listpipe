@@ -26,7 +26,7 @@ class Listpipe {
             case 'PushPost': return $this->pushPost($request); break;
             case 'GetContent': return $this->getContent($request); break;
             case 'ConfirmContent': return $this->confirmContent($request); break;
-            default: $this->cms->fail();
+            default: return $this->cms->fail();
         }
     }
 
@@ -38,11 +38,11 @@ class Listpipe {
             $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
             $debug = empty($request['debug']) ? false : $request['debug'];
         } catch (Exception $e) {
-            $this->cms->fail();
+            return $this->cms->fail();
         }
 
         // require all non-optional args to be set to non-empty values
-        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { $this->cms->fail(); }
+        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return $this->cms->fail(); }
 
         if ($approve_type == 'draft') {
             $this->is_draft = True;
@@ -55,10 +55,10 @@ class Listpipe {
         );
 
         if (! $this->contentIsValid($content)) {
-            $this->cms->fail(); // TODO print error message or something
+            return $this->cms->fail(); // TODO print error message or something
         }
 
-        $post = processContent($content);
+        $post = $this->processContent($content);
 
         // send "confirmation ping"
         $this->get(Listpipe::LISTPIPE_API
@@ -68,7 +68,7 @@ class Listpipe {
             . '&PostID=' . urlencode($post['id'])
         );
 
-        $this->cms->succeed();
+        return $this->cms->succeed();
     }
 
     public function publishDraft($request) {
@@ -76,17 +76,17 @@ class Listpipe {
             $post_id = $request['pid'];
             $approval_key = $request['key'];
         } catch (Exception $e) {
-            $this->cms->fail();
+            return $this->cms->fail();
         }
 
         // TODO validate approval key (currently *any* approval key will allow publishing)
 
         // require all non-optional args to be set to non-empty values
-        if (empty($post_id) || empty($approval_key)) { $this->cms->fail(); }
+        if (empty($post_id) || empty($approval_key)) { return $this->cms->fail(); }
 
-        if ($this->cms->publishPost($post_id)) { $this->cms->succeed(); }
+        if ($this->cms->publishPost($post_id)) { return $this->cms->succeed(); }
 
-        $this->cms->fail();
+        return $this->cms->fail();
 
         // TODO finish implementing this function
 //        try {
@@ -96,11 +96,11 @@ class Listpipe {
 //            $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
 //            $debug = empty($request['debug']) ? false : $request['debug'];
 //        } catch (Exception $e) {
-//            $this->cms->fail();
+//            return $this->cms->fail();
 //        }
 //
 //        // require all non-optional args to be set to non-empty values
-//        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { $this->cms->fail(); }
+//        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return $this->cms->fail(); }
 //
 //        if ($approve_type == 'draft') {
 //            $this->is_draft = True;
@@ -128,7 +128,7 @@ class Listpipe {
 
         $this->cms->log("received reply from remote: $content");
 
-        $this->cms->fail("TODO determine when to fail, when to fold 'em, and when to run");
+        return $this->cms->fail("TODO determine when to fail, when to fold 'em, and when to run");
     }
 
     public function isDraft() {
@@ -160,7 +160,7 @@ class Listpipe {
                 curl_close($ch);
 
                 // if curl failed, we're out of options so bail
-            } catch (Exception $e) { $this->cms->fail("curl failed: " .  $e->getMessage()); }
+            } catch (Exception $e) { return $this->cms->fail("curl failed: " .  $e->getMessage()); }
 
         // fopen worked, fetch the data
         } else {
