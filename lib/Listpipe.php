@@ -16,6 +16,8 @@ class Listpipe {
     public function __construct(CmsInterface $cms) {
         $this->is_draft = false;
         $this->cms = $cms;
+
+        $this->listpipe_url = $this->cms->config['listpipe_url'];
     }
 
     // expects config array and request array (both associative)
@@ -48,8 +50,8 @@ class Listpipe {
             $this->is_draft = True;
         }
 
-        $content = $this->get(Listpipe::LISTPIPE_API
-            . 'action=GetContent'
+        $content = $this->get($this->listpipe_url
+            . '?action=GetContent'
             . '&DraftKey=' . urlencode($draft_key)
             . '&BlogPostingID=' . urlencode($blog_posting_id)
         );
@@ -61,8 +63,8 @@ class Listpipe {
         $post = $this->processContent($content);
 
         // send "confirmation ping"
-        $this->get(Listpipe::LISTPIPE_API
-            . 'action=ConfirmContent'
+        $this->get($this->listpipe_url
+            . '?action=ConfirmContent'
             . '&DraftKey=' . urlencode($draft_key)
             . '&BlogPostingID=' . urlencode($blog_posting_id)
             . '&PostID=' . urlencode($post['id'])
