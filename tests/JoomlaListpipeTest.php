@@ -59,6 +59,8 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('success', $result);
     }
 
+    // TODO add tests for "server" actions (PushPost, GetContent, ConfirmContent)
+
     // handleRequest
     public function testHandleBadRequest() {
         $request = [ 'action' => 'foo', 'DraftKey' => 'foo', 'ApprovalKey' => 'bar', 'BlogPostingID' => '42',

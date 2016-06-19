@@ -12,7 +12,7 @@ class Listpipe {
     const LISTPIPE_API = 'http://www.listpipe.com/blogs/getContent.php?';
     const DELIMITER = '{-~-}';
 
-    const ACTIONS = ['GetDraft', 'PublishDraft'];
+    const ACTIONS = ['GetDraft', 'PublishDraft', 'PushPost', 'GetContent', 'ConfirmContent'];
 
     protected $is_draft;
 
@@ -26,6 +26,9 @@ class Listpipe {
         switch ($request['action']) {
             case 'GetDraft': return $this->getDraft($request); break;
             case 'PublishDraft': return $this->publishDraft($request); break;
+            case 'PushPost': return $this->pushPost($request); break;
+            case 'GetContent': return $this->getContent($request); break;
+            case 'ConfirmContent': return $this->confirmContent($request); break;
             default: return Listpipe::FAIL;
         }
     }
@@ -79,7 +82,7 @@ class Listpipe {
             return Listpipe::FAIL;
         }
 
-        // TODO validate approval key (currently *any* approval key will allow publishing
+        // TODO validate approval key (currently *any* approval key will allow publishing)
 
         // require all non-optional args to be set to non-empty values
         if (empty($post_id) || empty($approval_key)) { return Listpipe::FAIL; }
@@ -87,6 +90,8 @@ class Listpipe {
         if ($this->cms->publishPost($post_id)) { return Listpipe::OK; }
 
         return Listpipe::FAIL;
+
+        // TODO finish implementing this function
 //        try {
 //            $draft_key = $request['DraftKey'];
 //            $approval_key = $request['ApprovalKey'];
@@ -105,6 +110,26 @@ class Listpipe {
 //        }
 //
 //        return Listpipe::OK;
+    }
+
+    /**
+     * pushes a random article to an alternate site
+     * call via a URL like: http://site.com/index.php?action=PushPost&url=http%3A%2F%2Fothersite.com
+     * @param $request
+     */
+    public function pushPost($request) {
+        $url = $request['url']
+            . '/index.php?action=GetDraft'
+            . '&DraftKey=x'
+            . '&ApprovalKey=z'
+            . '&BlogPostingID=0'
+            . '&ApproveType=publish';
+
+        $this->cms->log("initiating remote article push to url: $url");
+
+        $content = $this->get($url);
+
+        $this->cms-Log("received reply from remote: $content");
     }
 
     public function isDraft() {
