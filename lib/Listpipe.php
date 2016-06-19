@@ -13,7 +13,7 @@ class Listpipe {
 
     protected $is_draft;
 
-    public function __construct($cms) {
+    public function __construct(CmsInterface $cms) {
         $this->is_draft = False;
         $this->cms = $cms;
     }
@@ -46,6 +46,42 @@ class Listpipe {
         }
 
         return Listpipe::OK;
+    }
+
+    public function publishDraft($request) {
+        try {
+            $post_id = $request['pid'];
+            $approval_key = $request['key'];
+        } catch (Exception $e) {
+            return Listpipe::FAIL;
+        }
+
+        // TODO validate approval key (currently *any* approval key will allow publishing
+
+        // require all non-optional args to be set to non-empty values
+        if (empty($post_id) || empty($approval_key)) { return Listpipe::FAIL; }
+
+        if ($this->cms->publishPost($post_id)) { return Listpipe::OK; }
+
+        return Listpipe::FAIL;
+//        try {
+//            $draft_key = $request['DraftKey'];
+//            $approval_key = $request['ApprovalKey'];
+//            $blog_posting_id = $request['BlogPostingID'];
+//            $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
+//            $debug = empty($request['debug']) ? False : $request['debug'];
+//        } catch (Exception $e) {
+//            return Listpipe::FAIL;
+//        }
+//
+//        // require all non-optional args to be set to non-empty values
+//        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return Listpipe::FAIL; }
+//
+//        if ($approve_type == 'draft') {
+//            $this->is_draft = True;
+//        }
+//
+//        return Listpipe::OK;
     }
 
     public function isDraft() {

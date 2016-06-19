@@ -11,7 +11,7 @@ namespace Wizory;
 
 interface CmsInterface {
     // publish a post given the id (optional date to schedule future publish)
-    public function publishPost($id, $date);
+    public function publishPost($id, $date=null);
 
     // publish a category given its id
     public function publishCategory($id);
