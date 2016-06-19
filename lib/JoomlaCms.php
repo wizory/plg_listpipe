@@ -115,15 +115,26 @@ class JoomlaCms implements CmsInterface {
         return $user_id;
     }
 
-    public function log($message, $severity = INFO, $user = 0) {
-        $entry = array('status' => $severity, 'comment' => $message, 'user_id' => $user);
+    public function log($message, $severity = JoomlaCms::INFO) {
+        jimport('joomla.log.log');
 
         if (defined('\JLog')) {
-            $log = &\JLog::getInstance(LOG_FILE);
 
-            $log->addEntry($entry);
+            // translate generic CMS log levels to Joomla log levels
+            switch($severity) {
+                case JoomlaCms::INFO: $log_level = \JLog::INFO; break;
+                case JoomlaCms::WARN: $log_level = \JLog::WARNING; break;
+                case JoomlaCms::ERROR: $log_level = \JLog::ERROR; break;
+                default: $log_level = \JLog::INFO;
+            }
+    
+            // add the file logger (for all log levels of our plugin)
+            \JLog::addLogger(array('text_file' => LOG_FILE), \JLog::ALL, array('plg_wizory_listpipe'));
+
+            \JLog::add(\JText::_($message), $log_level, 'plg_wizory_listpipe');
+            
         } else {
-            print_r($entry);
+            print_r(array('message' => $message, 'severity' => $severity));
         }
     }
 
