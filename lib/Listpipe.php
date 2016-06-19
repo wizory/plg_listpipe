@@ -17,7 +17,7 @@ class Listpipe {
     protected $is_draft;
 
     public function __construct(CmsInterface $cms) {
-        $this->is_draft = False;
+        $this->is_draft = false;
         $this->cms = $cms;
     }
 
@@ -36,7 +36,7 @@ class Listpipe {
             $approval_key = $request['ApprovalKey'];
             $blog_posting_id = $request['BlogPostingID'];
             $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
-            $debug = empty($request['debug']) ? False : $request['debug'];
+            $debug = empty($request['debug']) ? false : $request['debug'];
         } catch (Exception $e) {
             return Listpipe::FAIL;
         }
@@ -48,17 +48,25 @@ class Listpipe {
             $this->is_draft = True;
         }
 
-        $content = $this->fetch(Listpipe::LISTPIPE_API
+        $content = $this->get(Listpipe::LISTPIPE_API
             . 'action=GetContent'
             . '&DraftKey=' . urlencode($draft_key)
             . '&BlogPostingID=' . urlencode($blog_posting_id)
         );
 
-        if ($this->contentIsValid($content)) {
-            $post = processContent($content);
+        if (! $this->contentIsValid($content)) {
+            return Listpipe::FAIL; // TODO print error message or something
         }
 
-        # also need to check for debug and handle...(and add logging back)
+        $post = processContent($content);
+
+        // send "confirmation ping"
+        $this->get(Listpipe::LISTPIPE_API
+            . 'action=ConfirmContent'
+            . '&DraftKey=' . urlencode($draft_key)
+            . '&BlogPostingID=' . urlencode($blog_posting_id)
+            . '&PostID=' . urlencode($post['id'])
+        );
 
         return Listpipe::OK;
     }
@@ -84,7 +92,7 @@ class Listpipe {
 //            $approval_key = $request['ApprovalKey'];
 //            $blog_posting_id = $request['BlogPostingID'];
 //            $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
-//            $debug = empty($request['debug']) ? False : $request['debug'];
+//            $debug = empty($request['debug']) ? false : $request['debug'];
 //        } catch (Exception $e) {
 //            return Listpipe::FAIL;
 //        }
@@ -103,7 +111,7 @@ class Listpipe {
         return $this->is_draft;
     }
 
-    public function fetch($url) {
+    public function get($url) {
         $data = '';
 
         $this->cms->log("params valid, fetching data from url '$url'");
@@ -143,10 +151,13 @@ class Listpipe {
         return $data;
     }
 
+    // TODO log why content is not valid in various cases
     public function contentIsValid($content) {
-        if (empty($content)) { return False; }
+        if (empty($content)) { return false; }
 
-        if (substr($content, 0, 4) == 'fail') { return False; }
+        if (substr($content, 0, 4) == 'fail') { return false; }
+
+        if (count(explode(Listpipe::DELIMITER, $content)) < 2) { return false; }
 
         return True;
     }
@@ -154,13 +165,29 @@ class Listpipe {
     public function processContent($content) {
         $this->cms->log("processing article data '" . print_r($content,true) . "'");
 
-        list($post['title'], $post['body'], $post['category']) = explode(Listpipe::DELIMITER, $content);
+        $content_elements = explode(Listpipe::DELIMITER, $content);
 
+        $post['title'] = $content_elements[0];
+        $post['body'] = $content_elements[1];
         // TODO get default category name from $this->cms (might be different in WP, etc.)
-        if (empty($post['category'])) { $post['category'] = 'Uncategorized'; }
+        $post['category'] = empty($content_elements[2]) ? 'Uncategorized' : $content_elements[2];
 
-        $this->cms->findOrCreateCategory($post['category']);
+        $post['category_id'] = $this->cms->findOrCreateCategory($post['category']);
 
+        // NOTE previous version didn't publish the category if approveType was draft...might want to see if we can
+        // schedule a publish in that case?
+        $this->cms->publishCategory($post['category_id']);
+
+        $post['user_id'] = $this->cms->getArticleUser();
+
+        $post['id'] = $this->cms->insertPost($post);
+
+        // TODO what is this random future skew for? To make it look like it's not scheduled maybe?
+        $publish_timestamp = strtotime("+ ".rand(0,3000)." seconds");
+
+        $this->cms->publishPost($post['id'], gmdate("Y-m-d H:i:s",$publish_timestamp));
+
+        return $post;
     }
 
 }

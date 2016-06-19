@@ -31,7 +31,7 @@ interface CmsInterface {
     public function insertCategory($name='untitled', $parent=1, $description='');
 
     // add a new post given author, publish date, and the content (and some optional parameters)
-    public function insertPost($author, $date, $content, $title='untitled', $category=1);
+    public function insertPost($data);
 
     // return the id of the "admin" user
     public function getAdminUserId();

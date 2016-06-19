@@ -26,7 +26,23 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function publishCategory($id) {
-        // TODO: Implement publishCategory() method.
+        if (!defined('JFactory')) { return; } // TODO print a message showing we "faked" this in test
+
+        $db = &JFactory::getDBO();
+
+        $category = new stdClass;
+
+        $category->id = $id;
+        $category->published = 1;
+
+        $this->log("publishing category with params '" . print_r($category,true) . "'");
+
+        if (!$db->updateObject( '#__categories', $category, 'id')) {
+            $this->fail($db->stderr());
+            return false;
+        }
+
+        return $category->id;
     }
 
     public function getCategoryForPost($id) {
@@ -41,8 +57,31 @@ class JoomlaCms implements CmsInterface {
         // TODO: Implement insertCategory() method.
     }
 
-    public function insertPost($author, $date, $content, $title = 'untitled', $category = 1) {
-        // TODO: Implement insertPost() method.
+    public function insertPost($data) {
+        if (!defined('JFactory')) { return; } // TODO print a message showing we "faked" this in test
+
+        $db = &JFactory::getDBO();
+
+        $post = new stdClass;
+
+        // set properties & provide some sane defaults
+        $post->id = null;
+        $post->created_by = $data['user_id'];
+        $post->title = $data['title'];
+        $post->alias = JFilterOutput::stringURLSafe($post->title);
+        $post->introtext = $data['body'];
+        $post->catid = $data['category_id'];
+        $post->created = gmdate("Y-m-d H:i:s");
+        $post->access = 1; // TODO what is this?
+
+        //$this->log(INFO,"inserting post with params '" . print_r($post,true) . "'");
+
+        if (!$db->insertObject( '#__content', $post, 'id')) {
+            $this->fail($db->stderr());
+            return false;
+        }
+
+        return $post->id;
     }
 
     public function getAdminUserId() {
@@ -51,7 +90,7 @@ class JoomlaCms implements CmsInterface {
 
     public function findOrCreateCategory($name) {
         //look for an existing category with matching name and get the id
-        $cat_id = $this->get_cat_id($name);
+        $cat_id = $this->getCategoryId($name);
 
         $parent_cat_id = $this->config['parent_category_id'];
 
@@ -66,6 +105,14 @@ class JoomlaCms implements CmsInterface {
 
             //$this->log(INFO,"created '$cat_name' category with id '$cat_id'");
         }
+    }
+
+    public function getArticleUser() {
+        $user_id = $this->config['user_id'];
+
+        if (empty($user_id)) { $user_id = $this->getAdminUserId(); }
+
+        return $user_id;
     }
 
     public function log($message, $severity = INFO, $user = 0) {
@@ -88,8 +135,11 @@ class JoomlaCms implements CmsInterface {
         // TODO: Implement succeed() method.
     }
 
-    // non-interface functions (local joomla-specific helpers)
+    // non-interface functions (local joomla-specific helpers...note snake_case)
     function joomla25_insert_category($params) {
+
+        if (!defined('JPATH_ADMINISTRATOR')) { return; } // TODO print a message showing we "faked" this in test
+
         $com_categories = JPATH_ADMINISTRATOR . '/components/com_categories';
         require_once $com_categories . '/models/category.php';
 
