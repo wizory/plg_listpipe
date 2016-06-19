@@ -26,9 +26,9 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function publishCategory($id) {
-        if (!defined('JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!defined('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
 
-        $db = &JFactory::getDBO();
+        $db = &\JFactory::getDBO();
 
         $category = new stdClass;
 
@@ -58,17 +58,17 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function insertPost($data) {
-        if (!defined('JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!defined('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
 
-        $db = &JFactory::getDBO();
+        $db = &\JFactory::getDBO();
 
-        $post = new stdClass;
+        $post = new \stdClass;
 
         // set properties & provide some sane defaults
         $post->id = null;
         $post->created_by = $data['user_id'];
         $post->title = $data['title'];
-        $post->alias = JFilterOutput::stringURLSafe($post->title);
+        $post->alias = \JFilterOutput::stringURLSafe($post->title);
         $post->introtext = $data['body'];
         $post->catid = $data['category_id'];
         $post->created = gmdate("Y-m-d H:i:s");
@@ -118,8 +118,8 @@ class JoomlaCms implements CmsInterface {
     public function log($message, $severity = INFO, $user = 0) {
         $entry = array('status' => $severity, 'comment' => $message, 'user_id' => $user);
 
-        if (defined('JLog')) {
-            $log = &JLog::getInstance(LOG_FILE);
+        if (defined('\JLog')) {
+            $log = &\JLog::getInstance(LOG_FILE);
 
             $log->addEntry($entry);
         } else {
@@ -128,7 +128,7 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function fail($message = '') {
-        $mainframe =& JFactory::getApplication();
+        $mainframe = &\JFactory::getApplication();
 
         $this->log(ERROR,"abnormal termination with message '" . $message . "'");
 
@@ -152,7 +152,7 @@ class JoomlaCms implements CmsInterface {
         require_once $com_categories . '/models/category.php';
 
         $cat_title = $params['cat_name'] or 'untitled';
-        $cat_alias = JFilterOutput::stringURLSafe($cat_title);
+        $cat_alias = \JFilterOutput::stringURLSafe($cat_title);
         $cat_parent = $params['parent_id'] or 1;
         $cat_desc = $params['description'] or '';
 
@@ -175,7 +175,7 @@ class JoomlaCms implements CmsInterface {
         $status = $cat_model->save($catalog);
 
         if (!$status) {
-            JError::raiseWarning(500, JText::_('Unable to create category'));
+            \JError::raiseWarning(500, \JText::_('Unable to create category'));
         }
     }
 }

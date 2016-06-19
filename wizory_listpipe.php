@@ -11,7 +11,7 @@ require 'lib/JoomlaCms.php';
 use Wizory\Listpipe;
 use Wizory\JoomlaCms;
 
-class plgSystemWizory_Listpipe extends JPlugin {
+class plgSystemWizory_Listpipe extends \JPlugin {
 
     // Plugin constructor
     function plgSystemWizory_Listpipe(&$subject, $params) {
@@ -24,12 +24,12 @@ class plgSystemWizory_Listpipe extends JPlugin {
     // NOTE this needs to remain very lightweight since it's called on *every* request
     public function onAfterRoute() {
         // if a supported action was requested
-        if (in_array(JRequest::getVar('action'), $this->actions)) {
+        if (in_array(\JRequest::getVar('action'), $this->actions)) {
             $cms = new JoomlaCms($this->config);
 
             $listpipe = new Listpipe($cms);
 
-            $listpipe->handleRequest(JRequest::get());
+            $listpipe->handleRequest(\JRequest::get());
         }
     }
 }

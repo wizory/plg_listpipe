@@ -127,6 +127,8 @@ class Listpipe {
         $content = $this->get($url);
 
         $this->cms->log("received reply from remote: $content");
+
+        $this->cms->fail("TODO determine when to fail, when to fold 'em, and when to run");
     }
 
     public function isDraft() {
