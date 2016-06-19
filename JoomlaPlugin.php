@@ -13,7 +13,7 @@ class plgSystemWizory_ListPipe extends JPlugin {
     function plgSystemWizory_ListPipe(&$subject, $params) {
         parent::__construct($subject, $params);
 
-        $this->actions = Listpipe::actions;
+        $this->actions = Listpipe::ACTIONS;
         $this->config = $params;
     }
 
@@ -21,11 +21,11 @@ class plgSystemWizory_ListPipe extends JPlugin {
     public function onAfterRoute() {
         // if a supported action was requested
         if (in_array(JRequest::getVar('action'), $this->actions)) {
-            $cms = new JoomlaCms();
+            $cms = new JoomlaCms($this->config);
 
             $listpipe = new Listpipe($cms);
 
-            $listpipe->handleRequest($this->config, JRequest::get);
+            $listpipe->handleRequest(JRequest::get);
         }
     }
 }

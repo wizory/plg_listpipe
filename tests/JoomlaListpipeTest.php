@@ -8,7 +8,9 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
     protected $listpipe;
 
     protected function setUp() {
-        $cms = new JoomlaCms();
+        $config = ['parent_category_id' => 23, 'user_id' => 7];
+
+        $cms = new JoomlaCms($config);
         # create a new listpipe object before every test
         $this->listpipe = new Listpipe($cms);
     }
@@ -43,7 +45,7 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
     }
 
     // publishDraft
-    public function testEmptyPublishDraftArgs() {
+    public function testEmptyPublishDraftArgs() {  // NOTE this is the listpipe "ping" (call to publish with no args)
         $result = $this->listpipe->publishDraft(null);
 
         $this->assertEquals('fail', $result);
@@ -61,7 +63,7 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
     public function testHandleBadRequest() {
         $request = [ 'action' => 'foo', 'DraftKey' => 'foo', 'ApprovalKey' => 'bar', 'BlogPostingID' => '42',
             'ApproveType' => 'draft' ];
-        $result = $this->listpipe->handleRequest(null, $request);
+        $result = $this->listpipe->handleRequest($request);
 
         $this->assertEquals('fail', $result);
     }
@@ -69,9 +71,41 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
     public function testHandleGoodRequest() {
         $request = [ 'action' => 'GetDraft', 'DraftKey' => 'foo', 'ApprovalKey' => 'bar', 'BlogPostingID' => '42' ];
 
-        $result = $this->listpipe->handleRequest(null, $request);
+        $result = $this->listpipe->handleRequest($request);
 
         $this->assertEquals('success', $result);
+    }
+
+    // contentIsValid
+    public function testEmptyContent() {
+        $content = '';
+
+        $result = $this->listpipe->contentIsValid($content);
+
+        $this->assertFalse($result);
+    }
+
+    public function testFailedContent() {
+        $content = 'fail';
+
+        $result = $this->listpipe->contentIsValid($content);
+
+        $this->assertFalse($result);
+    }
+
+    public function testAdditionalFailedContent() {
+        $content = 'failure is *always* an option :P';
+
+        $result = $this->listpipe->contentIsValid($content);
+
+        $this->assertFalse($result);
+    }
+
+    // processContent
+    public function processContentEmpty() {
+        $content = '';
+
+        $result = $this->listpipe->processContent($content);
     }
 
     # TODO add tests for debug mode

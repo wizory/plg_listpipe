@@ -8,6 +8,9 @@
 
 namespace Wizory;
 
+// Log levels/file
+define("INFO",0);
+define("ERROR", 1);
 
 interface CmsInterface {
     // publish a post given the id (optional date to schedule future publish)
@@ -34,7 +37,7 @@ interface CmsInterface {
     public function getAdminUserId();
 
     // log a system message given message and optional severity and user id
-    public function log($message, $severity='INFO', $user=0);
+    public function log($message, $severity=INFO, $user=0);
 
     // fail the request/action with an optional message (TODO is the message logged or returned?)
     public function fail($message='');

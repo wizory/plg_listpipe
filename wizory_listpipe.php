@@ -409,7 +409,7 @@ class plgSystemWizory_ListPipe extends JPlugin {
 		require_once $com_categories . '/models/category.php';
 
 		$cat_title = $params['cat_name'] or 'untitled';
-		$cat_alias = JFilterOutput::stringURLSafe($category->title);
+		$cat_alias = JFilterOutput::stringURLSafe($cat_title);
 		$cat_parent = $params['parent_id'] or 1;
 		$cat_desc = $params['description'] or '';
 
