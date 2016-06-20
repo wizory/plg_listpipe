@@ -8,7 +8,10 @@ class ListpipeTest extends PHPUnit_Framework_TestCase {
     protected $listpipe;
 
     protected function setUp() {
-        $config = ['parent_category_id' => 23, 'user_id' => 7];
+        $config = new \stdClass;
+        $config->parent_category_id = 23;
+        $config->user_id = 7;
+        $config->listpipe_url = 'http://localhost/index.php';
 
         $cms = new JoomlaCms($config);
         # create a new listpipe object before every test

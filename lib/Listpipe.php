@@ -6,7 +6,6 @@ use \Exception;
 
 class Listpipe {
 
-    const LISTPIPE_API = 'http://www.listpipe.com/blogs/getContent.php?';
     const DELIMITER = '{-~-}';
 
     const ACTIONS = ['GetDraft', 'PublishDraft', 'PushPost', 'GetContent', 'ConfirmContent'];
@@ -17,17 +16,17 @@ class Listpipe {
         $this->is_draft = false;
         $this->cms = $cms;
 
-        $this->listpipe_url = $this->cms->config['listpipe_url'];
+        $this->listpipe_url = $this->cms->config->listpipe_url;
     }
 
     // expects config array and request array (both associative)
     public function handleRequest($request) {
         switch ($request['action']) {
-            case 'GetDraft': return $this->getDraft($request); break;
-            case 'PublishDraft': return $this->publishDraft($request); break;
-            case 'PushPost': return $this->pushPost($request); break;
-            case 'GetContent': return $this->getContent($request); break;
-            case 'ConfirmContent': return $this->confirmContent($request); break;
+            case 'GetDraft': $this->cms->succeed($this->getDraft($request)); break;
+            case 'PublishDraft': $this->cms->succeed($this->publishDraft($request)); break;
+            case 'PushPost': $this->cms->succeed($this->pushPost($request)); break;
+            case 'GetContent': $this->cms->succeed($this->getContent($request)); break;
+            case 'ConfirmContent': $this->cms->succeed($this->confirmContent($request)); break;
             default: return $this->cms->fail();
         }
     }
@@ -40,11 +39,13 @@ class Listpipe {
             $approve_type = empty($request['ApproveType']) ? '' : $request['ApproveType'];
             $debug = empty($request['debug']) ? false : $request['debug'];
         } catch (Exception $e) {
-            return $this->cms->fail();
+            return $this->cms->fail("Couldn't set parameters from request: " . $e->getMessage());
         }
 
         // require all non-optional args to be set to non-empty values
-        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) { return $this->cms->fail(); }
+        if (empty($draft_key) || empty($approval_key) || empty($blog_posting_id)) {
+            return $this->cms->fail("Required value not set in request: " . print_r($request, true));
+        }
 
         if ($approve_type == 'draft') {
             $this->is_draft = True;
@@ -57,7 +58,7 @@ class Listpipe {
         );
 
         if (! $this->contentIsValid($content)) {
-            return $this->cms->fail(); // TODO print error message or something
+            return $this->cms->fail("invalid content: " . $content); // TODO print error message or something
         }
 
         $post = $this->processContent($content);
@@ -120,8 +121,8 @@ class Listpipe {
         $url = $request['url']
             . '/index.php?action=GetDraft'
             . '&DraftKey=x'
-            . '&ApprovalKey=z'
-            . '&BlogPostingID=0'
+            . '&ApprovalKey=x'
+            . '&BlogPostingID=x'
             . '&ApproveType=publish';
 
         $this->cms->log("initiating remote article push to url: $url");
@@ -130,7 +131,18 @@ class Listpipe {
 
         $this->cms->log("received reply from remote: $content");
 
-        return $this->cms->fail("TODO determine when to fail, when to fold 'em, and when to run");
+        // TODO check $content for 'fail' or 'success' and act accordingly
+
+        return $this->cms->succeed();
+    }
+
+    public function getContent($request) {
+        // TODO lookup a random category and article in the locally configured parent category and return that
+        return 'The Right Fluids for Your Vehicle{-~-}body{-~-}Fluids';
+    }
+
+    public function confirmContent($request) {
+        $this->cms->succeed();
     }
 
     public function isDraft() {
@@ -140,7 +152,7 @@ class Listpipe {
     public function get($url) {
         $data = '';
 
-        $this->cms->log("params valid, fetching data from url '$url'");
+        $this->cms->log("http GET for url '$url'");
 
         // try fopen
         @$handle = fopen($url,"r");
@@ -179,11 +191,20 @@ class Listpipe {
 
     // TODO log why content is not valid in various cases
     public function contentIsValid($content) {
-        if (empty($content)) { return false; }
+        if (empty($content)) {
+            $this->cms->log("content is empty", CmsInterface::ERROR);
+            return false;
+        }
 
-        if (substr($content, 0, 4) == 'fail') { return false; }
+        if (substr($content, 0, 4) == 'fail') {
+            $this->cms->log("content starts with 'fail'", CmsInterface::ERROR);
+            return false;
+        }
 
-        if (count(explode(Listpipe::DELIMITER, $content)) < 2) { return false; }
+        if (count(explode(Listpipe::DELIMITER, $content)) < 2) {
+            $this->cms->log("content is missing elements", CmsInterface::ERROR);
+            return false;
+        }
 
         return True;
     }

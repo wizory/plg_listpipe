@@ -18,16 +18,24 @@ class plgSystemWizory_Listpipe extends \JPlugin {
         parent::__construct($subject, $params);
 
         $this->actions = Listpipe::ACTIONS;
-        $this->config = $params;
+
+        $this->params = $params;
     }
 
     // NOTE this needs to remain very lightweight since it's called on *every* request
     public function onAfterRoute() {
         // if a supported action was requested
         if (in_array(\JRequest::getVar('action'), $this->actions)) {
-            $cms = new JoomlaCms($this->config);
+
+            $config = json_decode($this->params['params']);
+
+            $cms = new JoomlaCms($config);
+
+            $cms->log('init listpipe plugin...cms instantiated with config: ' . print_r($cms->config, true));
 
             $listpipe = new Listpipe($cms);
+
+            $cms->log('sending request to listpipe handler: ' . print_r(\JRequest::get(), true));
 
             $listpipe->handleRequest(\JRequest::get());
         }

@@ -30,7 +30,7 @@ class JoomlaCms implements CmsInterface {
 
         $db = &\JFactory::getDBO();
 
-        $category = new stdClass;
+        $category = new \stdClass;
 
         $category->id = $id;
         $category->published = 1;
@@ -50,7 +50,18 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function getCategoryId($name) {
-        // TODO: Implement getCategoryId() method.
+        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+
+        $this->log("looking up category id for category name '$name'");
+
+        $db = &\JFactory::getDBO();
+
+        $db->setQuery("select * from #__categories where title=" . $db->quote($name));
+        $dbResult = $db->loadAssoc();
+
+        $this->log("got category id '" . $dbResult['id'] . "' for category name '$name'");
+
+        return $dbResult['id'];
     }
 
     public function insertCategory($name = 'untitled', $parent = 1, $description = '') {
@@ -89,14 +100,15 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function findOrCreateCategory($name) {
+        $this->log("searching for category: " . $name);
         //look for an existing category with matching name and get the id
         $cat_id = $this->getCategoryId($name);
 
-        $parent_cat_id = $this->config['parent_category_id'];
+        $parent_cat_id = $this->config->parent_category_id;
 
         // otherwise create a new one
         if (!$cat_id) {
-            //$this->log(INFO,"'$cat_name' category doesn't exist...creating under parent category with id '$parent_category_id'");
+            $this->log("'$name' category doesn't exist...creating under parent category with id '$parent_cat_id'");
 
             $cat_id = $this->joomla25_insert_category(array(
                 "cat_name"=>$name,
@@ -104,11 +116,15 @@ class JoomlaCms implements CmsInterface {
             ));
 
             //$this->log(INFO,"created '$cat_name' category with id '$cat_id'");
+        } else {
+            $this->log("found category with id: " . $cat_id);
         }
+
+        return $cat_id;
     }
 
     public function getArticleUser() {
-        $user_id = $this->config['user_id'];
+        $user_id = $this->config->user_id;
 
         if (empty($user_id)) { $user_id = $this->getAdminUserId(); }
 
@@ -137,19 +153,22 @@ class JoomlaCms implements CmsInterface {
         }
     }
 
-    public function fail($message = '') {
+    public function fail($message = 'fail') {
         if (!class_exists('\JFactory')) { $this->log('not running under Joomla', JoomlaCms::ERROR); return 'fail'; }
 
-        $mainframe = &\JFactory::getApplication();
+//        $mainframe = &\JFactory::getApplication();
 
         $this->log("abnormal termination with message '" . $message . "'", JoomlaCms::ERROR);
 
-        echo "[ERROR] " . $message;
-
-        $mainframe->close();
+        exit($message);
+//
+//
+//        echo $message;
+//
+//        $mainframe->close();
     }
 
-    public function succeed($message = '') {
+    public function succeed($message = 'success') {
         if (!class_exists('\JFactory')) { $this->log('not running under Joomla', JoomlaCms::WARN); return 'success'; }
 
         $this->log("normal termination with message '" . $message . "'");
@@ -171,9 +190,9 @@ class JoomlaCms implements CmsInterface {
         $cat_desc = $params['description'] or '';
 
         $config = array('table_path' => $com_categories . '/tables');
-        $cat_model = new CategoriesModelCategory($config);
+        $cat_model = new \CategoriesModelCategory($config);
 
-        $catalog = array(
+        $category = array(
             'id' => NULL,
             'parent_id' => $cat_parent,
             'level' => 1,
@@ -186,10 +205,12 @@ class JoomlaCms implements CmsInterface {
             'language' => 'All'
         );
 
-        $status = $cat_model->save($catalog);
+        $status = $cat_model->save($category);
 
-        if (!$status) {
-            \JError::raiseWarning(500, \JText::_('Unable to create category'));
+        if (empty($status)) {
+            $this->fail($cat_model->getError());
         }
+
+        return $cat_model->getItem()->id;
     }
 }
