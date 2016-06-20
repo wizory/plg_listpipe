@@ -21,12 +21,30 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function publishPost($id, $date=null) {
-        // TODO: Implement publishPost() method.
-        return True;
+        if (!class_exists('\JFactory')) { return 1; } // TODO print a message showing we "faked" this in test
+
+        $db = &\JFactory::getDBO();
+
+        $post = new \stdClass;
+
+        // set properties & provide some sane defaults
+        $post->id = $id;
+        $post->state = 1;
+
+        // publish immediately unless we got a $date to publish
+        $post->publish_up = $date ? $date : gmdate("Y-m-d H:i:s");
+
+        $this->log("publishing post with params '" . print_r($post,true) . "'");
+
+        if (!$db->updateObject( '#__content', $post, 'id')) {
+            $this->fail($db->stderr());
+        }
+
+        return $post->id;
     }
 
     public function publishCategory($id) {
-        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!class_exists('\JFactory')) { return 1; } // TODO print a message showing we "faked" this in test
 
         $db = &\JFactory::getDBO();
 
@@ -39,7 +57,6 @@ class JoomlaCms implements CmsInterface {
 
         if (!$db->updateObject( '#__categories', $category, 'id')) {
             $this->fail($db->stderr());
-            return false;
         }
 
         return $category->id;
@@ -50,7 +67,7 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function getCategoryId($name) {
-        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!class_exists('\JFactory')) { return 1; } // TODO print a message showing we "faked" this in test
 
         $this->log("looking up category id for category name '$name'");
 
@@ -69,7 +86,7 @@ class JoomlaCms implements CmsInterface {
     }
 
     public function insertPost($data) {
-        if (!class_exists('\JFactory')) { return; } // TODO print a message showing we "faked" this in test
+        if (!class_exists('\JFactory')) { return 1; } // TODO print a message showing we "faked" this in test
 
         $db = &\JFactory::getDBO();
 
@@ -85,11 +102,10 @@ class JoomlaCms implements CmsInterface {
         $post->created = gmdate("Y-m-d H:i:s");
         $post->access = 1; // TODO what is this?
 
-        //$this->log(INFO,"inserting post with params '" . print_r($post,true) . "'");
+        $this->log("inserting post with params '" . print_r($post,true) . "'");
 
         if (!$db->insertObject( '#__content', $post, 'id')) {
             $this->fail($db->stderr());
-            return false;
         }
 
         return $post->id;
