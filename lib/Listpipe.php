@@ -138,7 +138,12 @@ class Listpipe {
 
     public function getContent($request) {
         // TODO lookup a random category and article in the locally configured parent category and return that
-        return 'The Right Fluids for Your Vehicle{-~-}body{-~-}Fluids';
+        // TODO s/Wilisonville/Wilsonville/g
+        // TODO make above functionality externalized?  Need variable length config element with pairs of search/replace
+        return <<<EOF
+Lance's Superior Auto Vehicle Maintenance Tips and Videos: Wiper Blades - Signs of Wear{-~-}<object width="400" height="320" data="http://autonettv.com/media/player.swf" type="application/x-shockwave-flash"><param name="flashvars" value="file=https://s3.amazonaws.com/autonettv.com/media/Wiper_Blades_DD_01_Signs_of_Wear_WS_Zen.mp4&image=https://s3.amazonaws.com/autonettv.com/media/Wiper Blades_DD_01 - Signs of Wear_WS_Zen.jpg&autostart=false" /><param name="src" value="http://autonettv.com/media/player.swf" /><param name="AllowScriptAccess" value="always"/><video width="400" height="320" controls="controls" poster="https://s3.amazonaws.com/autonettv.com/media/Wiper Blades_DD_01 - Signs of Wear_WS_Zen.jpg"><source src="https://s3.amazonaws.com/autonettv.com/media/Wiper_Blades_DD_01_Signs_of_Wear_WS_Zen.mp4" type="video/mp4"/></video></object><p>90% of our driving decisions are based on vision. Anything that impedes your vision can influence your <a title="wiper blades Wilsonville" href="">driving safety</a> &ndash; including a dirty windshield. In that sense, your wiper blades are a vital safety system. Most Wilsonville auto owners wait until their wipers have failed before they replace them. Then they find themselves in a driving situation when they really need forward visibility only to discover that their wipers are worn or maybe even torn and can&rsquo;t clear snow or rain from the windshield.</p>
+<p>As a key safety system, wiper blades should be replaced BEFORE they fail. Test your wipers at least once a month. If they are not doing the job, your Honest Lance's Superior Auto tech can replace them for you. <br /><br /> Give us a call<br /><br /><strong> Lance's Superior Auto<br /> 503-682-8522<br /> 30775-D SW Boones Ferry Road<br /> Wilsonville, Oregon 97070<br /> </strong></p>{-~-}Windshield Wipers
+EOF;
     }
 
     public function confirmContent($request) {

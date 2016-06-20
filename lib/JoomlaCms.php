@@ -100,6 +100,7 @@ class JoomlaCms implements CmsInterface {
         $post->introtext = $data['body'];
         $post->catid = $data['category_id'];
         $post->created = gmdate("Y-m-d H:i:s");
+        $post->language = '*'; // TODO does this fix the language issue?
         $post->access = 1; // TODO what is this?
 
         $this->log("inserting post with params '" . print_r($post,true) . "'");
@@ -213,13 +214,23 @@ class JoomlaCms implements CmsInterface {
             'parent_id' => $cat_parent,
             'level' => 1,
             'path' => $cat_alias,
-            'extension' => 'com_categories',
+            'extension' => 'com_content',
             'title' => $cat_title,
             'alias' => $cat_alias,
             'description' => $cat_desc,
             'published' => 1, # TODO make sure there's not something expecting an unpublished category
-            'language' => 'All'
+            'language' => '*'
         );
+
+        // TODO is this bit necessary? (example of "real" category vs example code...seems to work with neither)
+        // {"core.create":{"6":1,"3":1},"core.delete":{"6":1},"core.edit":{"6":1,"4":1},"core.edit.state":{"6":1,"5":1},"core.edit.own":{"6":1,"3":1}}
+//        $category['rules'] = array(
+//            'core.edit.state' => array(),
+//            'core.edit.delete' => array(),
+//            'core.edit.edit' => array(),
+//            'core.edit.state' => array(),
+//            'core.edit.own' => array(1 => true)
+//        );
 
         $status = $cat_model->save($category);
 
