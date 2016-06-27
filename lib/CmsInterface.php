@@ -44,4 +44,6 @@ interface CmsInterface {
 
     // succeed the request/action with an optional message (TODO is the message logged or returned?)
     public function succeed($message='');
+
+    public function getRandomPost();
 }

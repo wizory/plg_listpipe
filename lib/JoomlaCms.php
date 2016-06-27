@@ -240,4 +240,32 @@ class JoomlaCms implements CmsInterface {
 
         return $cat_model->getItem()->id;
     }
+
+    public function getRandomPost() {
+        $parent = $this->config->parent_category_id;
+
+        // get article and category data
+        $query = "SELECT a.*, c.title as 'cat_title', 'Joomla' as type " .
+            "FROM #__content a " .
+            "LEFT JOIN #__categories c ON c.id = a.catid " .
+            "WHERE a.catid in ";
+
+        // for articles with the parent category
+        $query .= "( SELECT id FROM #__categories WHERE parent_id in ($parent)) ";
+
+        // that are published
+        $query .= " AND a.state = '1'";
+
+        // and return just 1 random one from the list
+        $query .= " ORDER BY RAND() LIMIT 1;";
+
+        $this->log($query);
+
+        $db = &\JFactory::getDBO();
+        $db->setQuery($query);
+        $dbResult = $db->loadAssoc();
+        $this->log(print_r($dbResult,true));
+
+        return $dbResult;
+    }
 }
