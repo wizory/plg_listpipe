@@ -12,7 +12,7 @@ namespace Wizory;
 
 class WordpressCms implements CmsInterface {
 
-    public function publishPost($id, $date)
+    public function publishPost($id, $date=null)
     {
         // TODO: Implement publishPost() method.
     }
@@ -37,7 +37,7 @@ class WordpressCms implements CmsInterface {
         // TODO: Implement insertCategory() method.
     }
 
-    public function insertPost($author, $date, $content, $title = 'untitled', $category = 1)
+    public function insertPost($data)
     {
         // TODO: Implement insertPost() method.
     }
@@ -60,5 +60,10 @@ class WordpressCms implements CmsInterface {
     public function succeed($message = '')
     {
         // TODO: Implement succeed() method.
+    }
+
+    public function getRandomPost()
+    {
+        // TODO: Implement getRandomPost() method.
     }
 }
