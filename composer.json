@@ -1,0 +1,19 @@
+{
+  "name": "wizory/plg_listpipe",
+  "description": "Wizory's Joomla port of the ListPipe plugin for WordPress",
+  "type": "joomla-plugin",
+  "require-dev": {
+    "phpunit/phpunit": "^5.0",
+    "phpunit/php-code-coverage": "dev-master#b8436b000263f6d72fbad1d36890e247ce84857e"
+  },
+  "autoload": {
+    "psr-4": {"Wizory\\": "lib/"}
+  },
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Wizory Support",
+      "email": "support@wizory.com"
+    }
+  ]
+}

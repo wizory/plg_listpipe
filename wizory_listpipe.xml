@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<extension version="1.6.0" type="plugin" group="system" client="site" method="upgrade">
+	<name>System - Wizory Listpipe Content Generator</name>
+	<author>Wizory</author>
+	<creationDate>June 2016</creationDate>
+	<copyright>(C) 2016 Wizory, LLC. All rights reserved.</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<authorEmail>support@wizory.com</authorEmail>
+	<authorUrl>https://github.com/wizory/plg_listpipe</authorUrl>
+	<version>3.0.0</version>
+	<description>
+		<![CDATA[
+		Wizory's Joomla port of the ListPipe plugin for WordPress which "Pulls Powerful Custom Content from your
+		ListPipe account and inserts it into your posts".<br/><br/>
+
+		See <a href="https://listpipe.com/">listpipe.com</a> for details.<br/><br/>
+
+		To Use:
+		<ol>
+			<li>choose category and user in plugin parameters</li>
+		 	<li>enable plugin</li>
+		 	<li>wait for content to show up :)</li>
+		</ol><br/><br/>
+
+		<b>NOTE:</b> This plugin requires Joomla 1.6 or later
+		]]>
+	</description>
+	
+	<files>
+		<!-- WARNING: renaming this file will cause it not to load (despite the implication you can provide a name) -->
+		<filename plugin="wizory_listpipe">wizory_listpipe.php</filename>
+		<filename>lib/index.html</filename>
+		<filename>lib/Listpipe.php</filename>
+		<filename>lib/CmsInterface.php</filename>
+		<filename>lib/JoomlaCms.php</filename>
+		<filename>lib/WordpressCms.php</filename>
+	</files>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="parent_category_id" type="category" extension="com_content" default="1" label="Category"
+                       description="Choose the parent category to create blog sub-categories in."/>
+
+				<field name="user_id" type="user" default="0" label="User"
+                       description="Choose the user to create blog posts as."/>
+
+				<field name="listpipe_url" type="url" default="http://www.listpipe.com/blogs/getContent.php"
+					   label="Listpipe URL"
+					   description="Alternate listpipe endpoint (NOTE: it should include path to php file)" size="30" />
+			</fieldset>
+		</fields>
+	</config>
+		
+</extension>

@@ -4,7 +4,7 @@ This is Wizory's Joomla port of the [ListPipe plugin for WordPress](https://word
 
  > Pulls Powerful Custom Content from your ListPipe account and inserts it into your posts.
 
-See [listpipe.com](https://listpipe.com/) and [AutoNetTV driveMarketing](http://www.autonettv.com/products/drive-marketing/)for details.
+See [listpipe.com](https://listpipe.com/) and [AutoNetTV driveMarketing](http://www.autonettv.com/products/drive-marketing/) for details.
 
 ## Requirements
 - Joomla 1.6 or later
@@ -55,3 +55,15 @@ If you don't see the success message, get a non-200 return code, etc. look for a
 The origin IP addresses tend to be static so you can generally whitelist those.
 
 If you can't figure out what's not working feel free to create an issue with as much detail as possible.
+
+## Running Tests
+
+```bash
+composer install
+vendor/bin/phpunit tests
+
+```
+
+You should see passing tests. :wink:
+
+Note that the oddity in the composer.json pinning `phpunit/php-code-coverage` is due to https://github.com/sebastianbergmann/php-code-coverage/issues/390
