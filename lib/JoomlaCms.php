@@ -8,7 +8,10 @@
 
 namespace Wizory;
 
-define("LOG_FILE",'plg_wizory_listpipe.log');
+# TODO get plugin name elsewhere for references to 'plg_wizory_relayapi'
+
+
+define("LOG_FILE",'plg_wizory_relayapi.log');
 
 // handles case during tests where jimport is not available
 if (function_exists('jimport')) { jimport('joomla.error.log'); }
@@ -159,11 +162,11 @@ class JoomlaCms implements CmsInterface {
                 case JoomlaCms::ERROR: $log_level = \JLog::ERROR; break;
                 default: $log_level = \JLog::INFO;
             }
-    
-            // add the file logger (for all log levels of our plugin)
-            \JLog::addLogger(array('text_file' => LOG_FILE), \JLog::ALL, array('plg_wizory_listpipe'));
 
-            \JLog::add(\JText::_($message), $log_level, 'plg_wizory_listpipe');
+            // add the file logger (for all log levels of our plugin)
+            \JLog::addLogger(array('text_file' => LOG_FILE), \JLog::ALL, array('plg_wizory_relayapi'));
+
+            \JLog::add(\JText::_($message), $log_level, 'plg_wizory_relayapi');
             
         } else {
             print_r(array('message' => $message, 'severity' => $severity));

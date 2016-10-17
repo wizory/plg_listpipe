@@ -1,7 +1,7 @@
 #!/bin/bash
 
-name='plg_wizory_listpipe'
-version=$(grep '<version>' wizory_listpipe.xml | cut -d'>' -f2 | cut -d'<' -f1)
+name='plg_wizory_relayapi'
+version=$(grep '<version>' wizory_relayapi.xml | cut -d'>' -f2 | cut -d'<' -f1)
 
 rm $name-*.zip
 
