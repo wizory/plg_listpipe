@@ -23,7 +23,10 @@ class plgSystemWizory_Relayapi extends \JPlugin {
     }
 
     // NOTE this needs to remain very lightweight since it's called on *every* request
-    public function onAfterRoute() {
+    public function onAfterRender() {
+
+        # TODO determine a way to lock so only one simultaneous request is allowed to actually pull articles...
+        # alternatively just check for articles by title before creating to avoid dupes
 
         # load our plugin's extension table data
         $table = new JTableExtension(JFactory::getDbo());
@@ -34,13 +37,10 @@ class plgSystemWizory_Relayapi extends \JPlugin {
         if (! isset($custom_data)) { $custom_data = array(); }
 
         # lock to prevent more than one simultaneous relayapi update process
-        if (isset($custom_data['lock'])) {
+        if ($table->get('checked_out_time') != '0000-00-00 00:00:00') {  # Joomla 3.6.2 isn't setting checked_out :(
             return;
         } else {
-            $custom_data['lock'] = 'true';
-
-            $table->set('custom_data', json_encode($custom_data));
-            $table->store();
+            $table->checkOut($this->params->user_id);
         }
 
         $config = json_decode($this->params['params']);
@@ -54,6 +54,8 @@ class plgSystemWizory_Relayapi extends \JPlugin {
 
             # if we haven't surpassed the update interval, bail
             if ($elapsed->h < $config->update_interval) {
+                $table->checkIn();
+
                 return;
             }
         }
@@ -68,9 +70,10 @@ class plgSystemWizory_Relayapi extends \JPlugin {
 
         $custom_data['last_updated'] = $now;
 
-        unset($custom_data['lock']);
-
         $table->set('custom_data', json_encode($custom_data));
+
         $table->store();
+
+        $table->checkIn();
     }
 }
