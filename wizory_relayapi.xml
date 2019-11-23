@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
 	<authorEmail>support@wizory.com</authorEmail>
 	<authorUrl>https://github.com/wizory/plg_relayapi</authorUrl>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<description>
 		<![CDATA[
 		Wizory's Joomla implementation of the
@@ -25,7 +25,7 @@
 		<b>NOTE:</b> This plugin requires Joomla 2.5 or later
 		]]>
 	</description>
-	
+
 	<files>
 		<!-- WARNING: renaming this file will cause it not to load (despite the implication you can provide a name) -->
 		<filename plugin="wizory_relayapi">wizory_relayapi.php</filename>
@@ -56,5 +56,5 @@
 			</fieldset>
 		</fields>
 	</config>
-		
+
 </extension>

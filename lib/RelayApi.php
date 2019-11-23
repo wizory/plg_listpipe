@@ -15,19 +15,25 @@ class RelayApi {
         if (isset($last_updated)) {
             $this->cms->log("fetching all articles since $last_updated");
 
-            $posts_url = "http://$this->webtools_domain/wsapi/$this->api_key/posts/?start_date=$last_updated";
+            $posts_url = "https://$this->webtools_domain/wsapi/$this->api_key/posts/?start_date=$last_updated";
 
         } else {
             $this->cms->log("fetching initial articles...");
 
-            $posts_url = "http://$this->webtools_domain/wsapi/$this->api_key/posts/?limit=25";
+            $posts_url = "https://$this->webtools_domain/wsapi/$this->api_key/posts/?limit=25";
         }
+
+        $article_data = $this->get($posts_url);
 
         $articles = json_decode($this->get($posts_url));
 
-        $this->publishArticles($articles);
+        if (empty($articles)) {
+            $this->cms->log("⚠️ no articles received...remote returned: ${article_data} ");
 
-        $this->cms->log("received " . count($articles) . " articles");
+        } else {
+            $this->publishArticles($articles);
+            $this->cms->log("received " . count($articles) . " articles");
+        }
     }
 
     public function publishArticles($articles) {
@@ -69,6 +75,8 @@ class RelayApi {
                 $ch = curl_init();
 
                 curl_setopt($ch,CURLOPT_URL,$url);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($ch,CURLOPT_HEADER,0);
                 curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 
